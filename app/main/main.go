@@ -31,8 +31,8 @@ func main() {
 		logger.Fatalf("Unable to generate config: %s", err)
 	}
 
-	logger.Infof("Starting server version: %s", Version)
 	logger.Out = conf.LogFile
+	logger.Infof("Starting server version: %s", Version)
 	logger.Level = logrus.Level(conf.LogLevel)
 	f := factory.NewFactory(conf)
 	r := router.NewRouter(f, logger)
