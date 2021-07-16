@@ -13,6 +13,7 @@ func NewRouter(f factory.Factory, l *logrus.Logger) *mux.Router {
 
 	router.HandleFunc("/health", handler.Health()).Methods("GET")
 	router.HandleFunc("/categories", handler.ListCategories(f, l)).Methods("GET")
+	router.HandleFunc("/categories/{name}", handler.GetCategoryItems(f, l)).Methods("GET")
 
 	return router
 }
