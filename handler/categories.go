@@ -9,14 +9,10 @@ import (
 	"rest-csv/response"
 )
 
-func ListCategories(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func ListCategories(f factory.Factory, _ *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		categories := []string{
-			"Tanks",
-			"Heavy vehicles",
-			"Others",
-		}
+		category := f.Category("")
 
-		response.Success{Success: categories}.Send(w)
+		response.Success{Success: category.GetCategories()}.Send(w)
 	}
 }

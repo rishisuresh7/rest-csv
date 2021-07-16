@@ -52,7 +52,10 @@ func GenerateConfig() (*Config, error) {
 
 	categoriesArray := os.Getenv("CATEGORIES")
 	if categoriesArray != "" {
-		c.Categories = strings.Split(categoriesArray, ",")
+		categories := strings.Split(categoriesArray, ",")
+		for _, value := range categories {
+			c.Categories = append(c.Categories, strings.TrimSpace(value))
+		}
 	}
 
 	dataLoc := os.Getenv("DATA_LOCATION")

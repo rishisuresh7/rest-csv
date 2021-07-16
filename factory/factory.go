@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"rest-csv/category"
 	"rest-csv/config"
 	"rest-csv/utility"
 )
@@ -15,6 +16,7 @@ var fileWriter sync.Once
 
 type Factory interface {
 	ReadWriter(file string) (*os.File, error)
+	Category(name string) category.Category
 }
 
 type factory struct {
@@ -86,4 +88,9 @@ func (f *factory) ReadWriter(file string) (*os.File, error) {
 	}
 
 	return fl, nil
+}
+
+func (f *factory) Category(name string) category.Category {
+	file, _ := f.ReadWriter(name)
+	return category.NewCategory(file, f.config.Categories)
 }
