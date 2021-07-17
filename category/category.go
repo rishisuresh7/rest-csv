@@ -15,7 +15,7 @@ type Category interface {
 	GetCategoryItems() ([][]string, error)
 	AddCategoryItem(item models.Item) error
 	UpdateCategoryItem() ([]string, error)
-	DeleteCategoryItem() error
+	DeleteCategoryItem(id string) error
 }
 
 type category struct {
@@ -42,7 +42,7 @@ func (c *category) GetCategoryItems() ([][]string, error) {
 		return nil, fmt.Errorf("GetCategoryItems: unable to read details: %s", err)
 	}
 
-	return data[1:], nil
+	return data, nil
 }
 
 func (c *category) AddCategoryItem(item models.Item) error {
@@ -63,6 +63,45 @@ func (c *category) UpdateCategoryItem() ([]string, error) {
 	return nil, nil
 }
 
-func (c *category) DeleteCategoryItem() error {
+func (c *category) DeleteCategoryItem(id string) error {
+	data, err := c.GetCategoryItems()
+	if err != nil {
+		return fmt.Errorf("DeleteCategoryItem: unable to read file to delete: %s", err)
+	}
+
+	records := len(data)
+	for i := 1; i<records; i++ {
+		if data[i][0] == id {
+			data = append(data[0:i], data[i+1:]...)
+			break
+		}
+	}
+
+	if records == len(data) {
+		return fmt.Errorf("DeleteCategoryItem: no item to delete")
+	}
+
+	err = c.truncate(data)
+	if err != nil {
+		return fmt.Errorf("DeleteCategoryItem: %s", err)
+	}
+
+	return nil
+}
+
+func (c *category) truncate(data [][]string) error {
+	csvWriter := csv.NewWriter(c.file)
+	err := c.file.Truncate(0)
+	if err != nil {
+		return fmt.Errorf("unable to truncate file: %s", err)
+	}
+
+	err = csvWriter.WriteAll(data)
+	if err != nil {
+		return fmt.Errorf("unable to update file: %s", err)
+	}
+
+	csvWriter.Flush()
+
 	return nil
 }
