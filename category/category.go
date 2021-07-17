@@ -14,7 +14,7 @@ type Category interface {
 	GetCategories() []string
 	GetCategoryItems() ([][]string, error)
 	AddCategoryItem(item models.Item) error
-	UpdateCategoryItem() ([]string, error)
+	UpdateCategoryItem(item models.Item) error
 	DeleteCategoryItem(id string) error
 }
 
@@ -59,8 +59,32 @@ func (c *category) AddCategoryItem(item models.Item) error {
 	return nil
 }
 
-func (c *category) UpdateCategoryItem() ([]string, error) {
-	return nil, nil
+func (c *category) UpdateCategoryItem(item models.Item) error {
+	row := []string{item.Id, item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
+	data, err := c.GetCategoryItems()
+	if err != nil {
+		return fmt.Errorf("UpdateCategoryItem: unable to read file to update: %s", err)
+	}
+
+	updated := false
+	for i := 1; i<len(data); i++ {
+		if data[i][0] == item.Id {
+			data[i] = row
+			updated = true
+			break
+		}
+	}
+
+	if !updated {
+		return fmt.Errorf("UpdateCategoryItem: no record to update")
+	}
+
+	err = c.truncate(data)
+	if err != nil {
+		return fmt.Errorf("UpdateCategoryItem: %s", err)
+	}
+
+	return nil
 }
 
 func (c *category) DeleteCategoryItem(id string) error {

@@ -106,3 +106,39 @@ func DeleteCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 		response.Success{Success: "item deleted successfully"}.Send(w)
 	}
 }
+
+func UpdateCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		name, ok := vars["name"]
+		if !ok {
+			l.Errorf("UpdateCategoryItem: could not read name from path params")
+			response.Error{Error: "invalid request"}.ClientError(w)
+			return
+		}
+
+		var payload models.Item
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			l.Errorf("UpdateCategoryItem: invalid request payload")
+			response.Error{Error: "invalid request"}.ClientError(w)
+			return
+		}
+
+		if payload.Id == "" {
+			l.Errorf("UpdateCategoryItem: id cannot be empty")
+			response.Error{Error: "invalid request"}.ClientError(w)
+			return
+		}
+
+		category := f.Category(name)
+		err = category.UpdateCategoryItem(payload)
+		if err != nil {
+			l.Errorf("UpdateCategoryItem: unable to delete data from category: %s", err)
+			response.Error{Error: "unexpected error happened"}.ServerError(w)
+			return
+		}
+
+		response.Success{Success: "item updated successfully"}.Send(w)
+	}
+}
