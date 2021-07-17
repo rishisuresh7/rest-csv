@@ -13,9 +13,9 @@ import (
 type Category interface {
 	GetCategories() []string
 	GetCategoryItems() ([][]string, error)
-	AddCategoryItem(item models.Item) error
-	UpdateCategoryItem(item models.Item) error
-	DeleteCategoryItem(id string) error
+	AddCategoryItem(item []models.Item) error
+	UpdateCategoryItem(item []models.Item) error
+	DeleteCategoryItem(id []string) error
 }
 
 type category struct {
@@ -45,13 +45,15 @@ func (c *category) GetCategoryItems() ([][]string, error) {
 	return data, nil
 }
 
-func (c *category) AddCategoryItem(item models.Item) error {
-	id := uuid.New()
-	row := []string{id.String(), item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
+func (c *category) AddCategoryItem(items []models.Item) error {
 	csvWriter := csv.NewWriter(c.file)
-	err := csvWriter.Write(row)
-	if err != nil {
-		return fmt.Errorf("AddCategoryItem: unable to write data: %s", err)
+	for _, item := range items {
+		id := uuid.New()
+		row := []string{id.String(), item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
+		err := csvWriter.Write(row)
+		if err != nil {
+			return fmt.Errorf("AddCategoryItem: unable to write data: %s", err)
+		}
 	}
 
 	csvWriter.Flush()
@@ -59,19 +61,20 @@ func (c *category) AddCategoryItem(item models.Item) error {
 	return nil
 }
 
-func (c *category) UpdateCategoryItem(item models.Item) error {
-	row := []string{item.Id, item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
+func (c *category) UpdateCategoryItem(items []models.Item) error {
 	data, err := c.GetCategoryItems()
 	if err != nil {
 		return fmt.Errorf("UpdateCategoryItem: unable to read file to update: %s", err)
 	}
 
 	updated := false
-	for i := 1; i<len(data); i++ {
-		if data[i][0] == item.Id {
-			data[i] = row
-			updated = true
-			break
+	for _, item := range items {
+		for i := 1; i<len(data); i++ {
+			if data[i][0] == item.Id {
+				data[i] = []string{item.Id, item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
+				updated = true
+				break
+			}
 		}
 	}
 
@@ -87,17 +90,19 @@ func (c *category) UpdateCategoryItem(item models.Item) error {
 	return nil
 }
 
-func (c *category) DeleteCategoryItem(id string) error {
+func (c *category) DeleteCategoryItem(ids []string) error {
 	data, err := c.GetCategoryItems()
 	if err != nil {
 		return fmt.Errorf("DeleteCategoryItem: unable to read file to delete: %s", err)
 	}
 
 	records := len(data)
-	for i := 1; i<records; i++ {
-		if data[i][0] == id {
-			data = append(data[0:i], data[i+1:]...)
-			break
+	for _, value := range ids {
+		for i := 1; i<records; i++ {
+			if data[i][0] == value {
+				data = append(data[0:i], data[i+1:]...)
+				break
+			}
 		}
 	}
 

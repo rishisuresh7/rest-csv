@@ -52,7 +52,7 @@ func AddCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		var payload models.Item
+		var payload []models.Item
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
 			l.Errorf("AddCategoryItem: invalid request payload")
@@ -60,8 +60,8 @@ func AddCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		if payload.BaNo == "" {
-			l.Errorf("AddCategoryItem: BaNo. cannot be empty")
+		if len(payload) == 0 {
+			l.Errorf("AddCategoryItem: payload cannot be empty")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
@@ -88,15 +88,22 @@ func DeleteCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		id := r.URL.Query().Get("id")
-		if id == "" {
-			l.Errorf("DeleteCategoryItem: could not read id from query params")
+		var payload models.Ids
+		err := json.NewDecoder(r.Body).Decode(&payload)
+		if err != nil {
+			l.Errorf("DeleteCategoryItem: invalid request payload")
+			response.Error{Error: "invalid request"}.ClientError(w)
+			return
+		}
+
+		if len(payload.Ids) == 0 {
+			l.Errorf("DeleteCategoryItem: no ids to delete")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
 		category := f.Category(name)
-		err := category.DeleteCategoryItem(id)
+		err = category.DeleteCategoryItem(payload.Ids)
 		if err != nil {
 			l.Errorf("DeleteCategoryItem: unable to delete data from category: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
@@ -117,7 +124,7 @@ func UpdateCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		var payload models.Item
+		var payload []models.Item
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
 			l.Errorf("UpdateCategoryItem: invalid request payload")
@@ -125,7 +132,7 @@ func UpdateCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		if payload.Id == "" {
+		if len(payload) == 0 {
 			l.Errorf("UpdateCategoryItem: id cannot be empty")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return

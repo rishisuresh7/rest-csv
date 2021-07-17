@@ -12,3 +12,7 @@ type Item struct {
 	Fault   string `json:"fault"`
 	Remarks string `json:"remarks"`
 }
+
+type Ids struct {
+	Ids []string `json:"ids"`
+}
