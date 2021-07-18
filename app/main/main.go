@@ -34,7 +34,7 @@ func main() {
 	logger.Out = conf.LogFile
 	logger.Infof("Starting server version: %s", Version)
 	logger.Level = logrus.Level(conf.LogLevel)
-	f := factory.NewFactory(conf)
+	f := factory.NewFactory(conf, logger)
 	r := router.NewRouter(f, logger)
 	n := negroni.New()
 

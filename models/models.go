@@ -16,3 +16,9 @@ type Item struct {
 type Ids struct {
 	Ids []string `json:"ids"`
 }
+
+type User struct {
+	Username       string `json:"username"`
+	Password       string `json:"password,omitempty"`
+	Authentication string `json:"authentication,omitempty"`
+}

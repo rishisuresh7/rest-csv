@@ -7,8 +7,12 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/sirupsen/logrus"
+
+	"rest-csv/auth"
 	"rest-csv/category"
 	"rest-csv/config"
+	"rest-csv/middleware"
 	"rest-csv/utility"
 )
 
@@ -17,17 +21,21 @@ var fileWriter sync.Once
 type Factory interface {
 	ReadWriter(file string) (*os.File, error)
 	Category(name string) category.Category
+	Auth() auth.Auth
+	NewJWTAuth() *middleware.JWTAuthenticator
 }
 
 type factory struct {
+	logger *logrus.Logger
 	config *config.Config
 	header []string
 	files  map[string]*os.File
 }
 
-func NewFactory(c *config.Config) Factory {
+func NewFactory(c *config.Config, l *logrus.Logger) Factory {
 	f := &factory{
 		config: c,
+		logger: l,
 		header: []string{},
 	}
 
@@ -93,4 +101,12 @@ func (f *factory) ReadWriter(file string) (*os.File, error) {
 func (f *factory) Category(name string) category.Category {
 	file, _ := f.ReadWriter(name)
 	return category.NewCategory(file, f.config.Categories)
+}
+
+func (f *factory) Auth() auth.Auth {
+	return auth.NewAuth(f.config.Username, f.config.Password, f.config.Secret)
+}
+
+func (f *factory) NewJWTAuth() *middleware.JWTAuthenticator {
+	return middleware.NewJWTAuthenticator(f.logger, f.config.Secret)
 }

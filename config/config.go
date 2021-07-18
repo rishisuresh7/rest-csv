@@ -15,6 +15,9 @@ type Config struct {
 	Categories   []string
 	LogFile      *os.File
 	DataLocation string
+	Username     string
+	Password     string
+	Secret       string
 }
 
 func GenerateConfig() (*Config, error) {
@@ -23,6 +26,7 @@ func GenerateConfig() (*Config, error) {
 		Token:    "foobarbaz",
 		LogFile:  os.Stdout,
 		LogLevel: 5,
+		Secret: "super-secure-secret",
 	}
 
 	token := os.Getenv("TOKEN")
@@ -67,6 +71,23 @@ func GenerateConfig() (*Config, error) {
 		return nil, fmt.Errorf("GenerateConfig: unable to create directory: %s", err)
 	}
 
+	userName := os.Getenv("USERNAME")
+	if userName == "" {
+		return nil, fmt.Errorf("GenerateConfig: missing username")
+	}
+
+	password := os.Getenv("PASSWORD")
+	if password == "" {
+		return nil, fmt.Errorf("GenerateConfig: missing password")
+	}
+
+	secret := os.Getenv("SECRET")
+	if secret != "" {
+		c.Secret = secret
+	}
+
+	c.Username = userName
+	c.Password = password
 	c.DataLocation = dataLoc
 
 	return c, nil

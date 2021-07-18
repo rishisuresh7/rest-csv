@@ -10,13 +10,16 @@ import (
 
 func NewRouter(f factory.Factory, l *logrus.Logger) *mux.Router {
 	router := mux.NewRouter()
+	authorizer := f.NewJWTAuth()
 
 	router.HandleFunc("/health", handler.Health()).Methods("GET")
-	router.HandleFunc("/categories", handler.ListCategories(f, l)).Methods("GET")
-	router.HandleFunc("/categories/{name}", handler.GetCategoryItems(f, l)).Methods("GET")
-	router.HandleFunc("/categories/{name}", handler.AddCategoryItem(f, l)).Methods("POST")
-	router.HandleFunc("/categories/{name}", handler.UpdateCategoryItem(f, l)).Methods("PATCH")
-	router.HandleFunc("/categories/{name}", handler.DeleteCategoryItem(f, l)).Methods("DELETE")
+	router.HandleFunc("/categories", authorizer.Authorize(handler.ListCategories(f, l))).Methods("GET")
+	router.HandleFunc("/categories/{name}", authorizer.Authorize(handler.GetCategoryItems(f, l))).Methods("GET")
+	router.HandleFunc("/categories/{name}", authorizer.Authorize(handler.AddCategoryItem(f, l))).Methods("POST")
+	router.HandleFunc("/categories/{name}", authorizer.Authorize(handler.UpdateCategoryItem(f, l))).Methods("PATCH")
+	router.HandleFunc("/categories/{name}", authorizer.Authorize(handler.DeleteCategoryItem(f, l))).Methods("DELETE")
+
+	router.HandleFunc("/auth", handler.Login(f, l)).Methods("POST")
 
 	return router
 }
