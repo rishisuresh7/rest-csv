@@ -12,11 +12,17 @@ import (
 	"rest-csv/response"
 )
 
-func ListCategories(f factory.Factory, _ *logrus.Logger) http.HandlerFunc {
+func ListCategories(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		category := f.Category("")
+		res, err := category.GetCategoryItems()
+		if err != nil {
+			l.Errorf("GetCategoryItems: unable to read data from category: %s", err)
+			response.Error{Error: "unexpected error happened"}.ServerError(w)
+			return
+		}
 
-		response.Success{Success: category.GetCategories()}.Send(w)
+		response.Success{Success: res}.Send(w)
 	}
 }
 
@@ -38,7 +44,7 @@ func GetCategoryItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		response.Success{Success: res[1:]}.Send(w)
+		response.Success{Success: res}.Send(w)
 	}
 }
 

@@ -7,7 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
+	"rest-csv/builder"
 	"rest-csv/models"
+	"rest-csv/repository"
 )
 
 type Category interface {
@@ -19,14 +21,18 @@ type Category interface {
 }
 
 type category struct {
-	file       *os.File
-	categories []string
+	file            *os.File
+	categories      []string
+	categoryBuilder builder.Categories
+	queryExecutor   repository.QueryExecutor
 }
 
-func NewCategory(f *os.File, c []string) Category {
+func NewCategory(f *os.File, c []string, cb builder.Categories, qe repository.QueryExecutor) Category {
 	return &category{
-		file:       f,
-		categories: c,
+		file:            f,
+		categories:      c,
+		categoryBuilder: cb,
+		queryExecutor:   qe,
 	}
 }
 
@@ -35,14 +41,18 @@ func (c *category) GetCategories() []string {
 }
 
 func (c *category) GetCategoryItems() ([][]string, error) {
-	_, _ = c.file.Seek(0, 0)
-	reader := csv.NewReader(c.file)
-	data, err := reader.ReadAll()
+	query := c.categoryBuilder.GetCategoryItems()
+	rows, err := c.queryExecutor.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("GetCategoryItems: unable to read details: %s", err)
+		return nil, fmt.Errorf("GetCategoryItems: unable to get details: %s", err)
 	}
 
-	return data, nil
+	res, err := c.queryExecutor.ParseRows(rows)
+	if err != nil {
+		return nil, fmt.Errorf("GetCategoryItems: unable to parse details: %s", err)
+	}
+
+	return res, nil
 }
 
 func (c *category) AddCategoryItem(items []models.Item) error {
@@ -69,7 +79,7 @@ func (c *category) UpdateCategoryItem(items []models.Item) error {
 
 	updated := false
 	for _, item := range items {
-		for i := 1; i<len(data); i++ {
+		for i := 1; i < len(data); i++ {
 			if data[i][0] == item.Id {
 				data[i] = []string{item.Id, item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
 				updated = true
@@ -98,7 +108,7 @@ func (c *category) DeleteCategoryItem(ids []string) error {
 
 	records := len(data)
 	for _, value := range ids {
-		for i := 1; i<records; i++ {
+		for i := 1; i < records; i++ {
 			if data[i][0] == value {
 				data = append(data[0:i], data[i+1:]...)
 				break

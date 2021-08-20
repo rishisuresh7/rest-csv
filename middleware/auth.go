@@ -31,7 +31,7 @@ func NewAuthenticationMiddleware(l *logrus.Logger, t string, r []string) Middlew
 	}
 }
 
-func NewJWTAuthenticator(l *logrus.Logger,s string) *JWTAuthenticator {
+func NewJWTAuthenticator(l *logrus.Logger, s string) *JWTAuthenticator {
 	return &JWTAuthenticator{logger: l, secret: []byte(s)}
 }
 
@@ -67,7 +67,7 @@ func (j *JWTAuthenticator) Authorize(next http.HandlerFunc) http.HandlerFunc {
 			return j.secret, nil
 		})
 
-		if  err != nil {
+		if err != nil {
 			j.logger.WithError(err).Errorf("unexpected error happened")
 			response.Error{Error: "forbidden"}.Forbidden(w)
 			return

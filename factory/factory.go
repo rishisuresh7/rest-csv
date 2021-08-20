@@ -1,22 +1,28 @@
 package factory
 
 import (
+	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 
 	"rest-csv/auth"
+	"rest-csv/builder"
 	"rest-csv/category"
 	"rest-csv/config"
 	"rest-csv/middleware"
+	"rest-csv/repository"
 	"rest-csv/utility"
 )
 
 var fileWriter sync.Once
+var sqlDriver sync.Once
 
 type Factory interface {
 	ReadWriter(file string) (*os.File, error)
@@ -28,6 +34,7 @@ type Factory interface {
 type factory struct {
 	logger *logrus.Logger
 	config *config.Config
+	db     *sql.DB
 	header []string
 	files  map[string]*os.File
 }
@@ -83,6 +90,22 @@ func (f *factory) initialize() (map[string]*os.File, error) {
 	return f.files, scErr
 }
 
+func (f *factory) connect() *sql.DB {
+	sqlDriver.Do(func() {
+		conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/ems", f.config.SQLUsername, f.config.SQLPassword))
+		if err != nil {
+			f.logger.Fatalf("Unable to connect to DB: %s....quitting....\n", err)
+		}
+
+		conn.SetConnMaxLifetime(time.Minute * 3)
+		conn.SetMaxOpenConns(10)
+		conn.SetMaxIdleConns(10)
+		f.db = conn
+	})
+
+	return f.db
+}
+
 func (f *factory) ReadWriter(file string) (*os.File, error) {
 	files, err := f.initialize()
 	if err != nil {
@@ -100,7 +123,11 @@ func (f *factory) ReadWriter(file string) (*os.File, error) {
 
 func (f *factory) Category(name string) category.Category {
 	file, _ := f.ReadWriter(name)
-	return category.NewCategory(file, f.config.Categories)
+	return category.NewCategory(file, f.config.Categories, builder.NewCategories(), f.QueryExecutor())
+}
+
+func (f *factory) QueryExecutor() repository.QueryExecutor {
+	return repository.NewExecutor(f.connect())
 }
 
 func (f *factory) Auth() auth.Auth {

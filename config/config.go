@@ -18,15 +18,21 @@ type Config struct {
 	Username     string
 	Password     string
 	Secret       string
+	SQLUsername  string
+	SQLPassword  string
+	SQLPort      int
 }
 
 func GenerateConfig() (*Config, error) {
 	c := &Config{
-		Port:     9000,
-		Token:    "foobarbaz",
-		LogFile:  os.Stdout,
-		LogLevel: 5,
-		Secret: "super-secure-secret",
+		Port:        9000,
+		Token:       "foobarbaz",
+		LogFile:     os.Stdout,
+		LogLevel:    5,
+		Secret:      "super-secure-secret",
+		SQLPort:     3306,
+		SQLUsername: "root",
+		SQLPassword: "rootroot",
 	}
 
 	token := os.Getenv("TOKEN")
