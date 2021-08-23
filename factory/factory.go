@@ -16,6 +16,7 @@ import (
 	"rest-csv/builder"
 	"rest-csv/category"
 	"rest-csv/config"
+	"rest-csv/demand"
 	"rest-csv/middleware"
 	"rest-csv/repository"
 	"rest-csv/utility"
@@ -27,6 +28,7 @@ var sqlDriver sync.Once
 type Factory interface {
 	ReadWriter(file string) (*os.File, error)
 	Category(name string) category.Category
+	Demand() demand.Demand
 	Auth() auth.Auth
 	NewJWTAuth() *middleware.JWTAuthenticator
 }
@@ -124,6 +126,10 @@ func (f *factory) ReadWriter(file string) (*os.File, error) {
 func (f *factory) Category(name string) category.Category {
 	file, _ := f.ReadWriter(name)
 	return category.NewCategory(file, f.config.Categories, builder.NewCategories(), f.QueryExecutor())
+}
+
+func (f *factory) Demand() demand.Demand {
+	return demand.NewDemand(builder.NewDemand(), f.QueryExecutor())
 }
 
 func (f *factory) QueryExecutor() repository.QueryExecutor {

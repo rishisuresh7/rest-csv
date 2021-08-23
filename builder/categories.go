@@ -1,12 +1,16 @@
 package builder
 
-import "rest-csv/models"
+import (
+	"fmt"
+
+	"rest-csv/models"
+)
 
 type Categories interface {
 	GetCategoryItems() string
 	AddCategoryItem(item []models.Item) string
 	UpdateCategoryItem(item []models.Item) string
-	DeleteCategoryItem() string
+	DeleteCategoryItems(ids []int64) string
 }
 
 type categories struct{}
@@ -27,6 +31,15 @@ func (c *categories) UpdateCategoryItem(item []models.Item) string {
 	return ""
 }
 
-func (c *categories) DeleteCategoryItem() string {
-	return ""
+func (c *categories) DeleteCategoryItems(ids []int64) string {
+	queryString := "( "
+	for i := range ids {
+		if i != len(ids) - 1 {
+			queryString += fmt.Sprintf("%d, ", ids[i])
+		}
+	}
+
+	queryString = queryString + fmt.Sprintf("%d )", ids[len(ids)-1])
+
+	return fmt.Sprintf("DELETE FROM vehicles WHERE id IN %s", queryString)
 }

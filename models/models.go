@@ -14,7 +14,7 @@ type Item struct {
 }
 
 type Ids struct {
-	Ids []string `json:"ids"`
+	Ids []int64 `json:"ids"`
 }
 
 type User struct {

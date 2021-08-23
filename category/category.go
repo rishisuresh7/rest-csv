@@ -17,7 +17,7 @@ type Category interface {
 	GetCategoryItems() ([][]string, error)
 	AddCategoryItem(item []models.Item) error
 	UpdateCategoryItem(item []models.Item) error
-	DeleteCategoryItem(id []string) error
+	DeleteCategoryItems(id []int64) (int64, error)
 }
 
 type category struct {
@@ -100,32 +100,19 @@ func (c *category) UpdateCategoryItem(items []models.Item) error {
 	return nil
 }
 
-func (c *category) DeleteCategoryItem(ids []string) error {
-	data, err := c.GetCategoryItems()
+func (c *category) DeleteCategoryItems(ids []int64) (int64, error) {
+	query := c.categoryBuilder.DeleteCategoryItems(ids)
+	res, err := c.queryExecutor.Exec(query)
 	if err != nil {
-		return fmt.Errorf("DeleteCategoryItem: unable to read file to delete: %s", err)
+		return -1, fmt.Errorf("DeleteCategoryItems: unable to delete: %s", err)
 	}
 
-	records := len(data)
-	for _, value := range ids {
-		for i := 1; i < records; i++ {
-			if data[i][0] == value {
-				data = append(data[0:i], data[i+1:]...)
-				break
-			}
-		}
-	}
-
-	if records == len(data) {
-		return fmt.Errorf("DeleteCategoryItem: no item to delete")
-	}
-
-	err = c.truncate(data)
+	noOfRows, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("DeleteCategoryItem: %s", err)
+		return -1, fmt.Errorf("DeleteCategoryItems: unable parse delete result: %s", err)
 	}
 
-	return nil
+	return noOfRows, nil
 }
 
 func (c *category) truncate(data [][]string) error {

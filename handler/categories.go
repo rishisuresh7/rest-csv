@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -84,20 +85,12 @@ func AddCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	}
 }
 
-func DeleteCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func DeleteItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		name, ok := vars["name"]
-		if !ok {
-			l.Errorf("DeleteCategoryItem: could not read name from path params")
-			response.Error{Error: "invalid request"}.ClientError(w)
-			return
-		}
-
 		var payload models.Ids
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
-			l.Errorf("DeleteCategoryItem: invalid request payload")
+			l.Errorf("DeleteItems: invalid request payload")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
@@ -108,15 +101,15 @@ func DeleteCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		category := f.Category(name)
-		err = category.DeleteCategoryItem(payload.Ids)
+		category := f.Category("")
+		res, err := category.DeleteCategoryItems(payload.Ids)
 		if err != nil {
 			l.Errorf("DeleteCategoryItem: unable to delete data from category: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
 
-		response.Success{Success: "item deleted successfully"}.Send(w)
+		response.Success{Success: fmt.Sprintf("%d item(s) deleted successfully", res)}.Send(w)
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 type QueryExecutor interface {
-	Exec(query string, args ...interface{}) (*sql.Result, error)
+	Exec(query string, args ...interface{}) (sql.Result, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
 	ParseRows(rows *sql.Rows) ([][]string, error)
 }
@@ -21,8 +21,13 @@ func NewExecutor(d *sql.DB) QueryExecutor {
 	}
 }
 
-func (qe *queryExecutor) Exec(query string, args ...interface{}) (*sql.Result, error) {
-	return nil, nil
+func (qe *queryExecutor) Exec(query string, args ...interface{}) (sql.Result, error) {
+	res, err := qe.db.Exec(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("Query: unable to query database: %s", err)
+	}
+
+	return res, nil
 }
 
 func (qe *queryExecutor) Query(query string, args ...interface{}) (*sql.Rows, error) {
@@ -64,10 +69,10 @@ func (qe *queryExecutor) ParseRows(rows *sql.Rows) ([][]string, error) {
 	return res, nil
 }
 
-func toString(val interface{}) string {
+func toString(val sql.RawBytes) string {
 	if val == nil {
 		return ""
 	} else {
-		return fmt.Sprintf("%v", val)
+		return string(val)
 	}
 }
