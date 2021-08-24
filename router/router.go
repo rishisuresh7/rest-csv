@@ -18,7 +18,10 @@ func NewRouter(f factory.Factory, l *logrus.Logger) *mux.Router {
 	router.HandleFunc("/categories", authorizer.Authorize(handler.UpdateVehicles(f, l))).Methods("PATCH")
 	router.HandleFunc("/categories", authorizer.Authorize(handler.DeleteVehicles(f, l))).Methods("DELETE")
 
-	router.HandleFunc("/demands", authorizer.Authorize(handler.ListDemands(f, l))).Methods("GET")
+	router.HandleFunc("/demands", authorizer.Authorize(handler.GetDemands(f, l))).Methods("GET")
+	router.HandleFunc("/demands", authorizer.Authorize(handler.AddDemands(f, l))).Methods("POST")
+	router.HandleFunc("/demands", authorizer.Authorize(handler.UpdateDemands(f, l))).Methods("PATCH")
+	router.HandleFunc("/demands", authorizer.Authorize(handler.DeleteDemands(f, l))).Methods("DELETE")
 
 	router.HandleFunc("/auth", handler.Login(f, l)).Methods("POST")
 
