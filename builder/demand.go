@@ -4,7 +4,7 @@ type Demand interface {
 	ListDemands() string
 }
 
-type demand struct {}
+type demand struct{}
 
 func NewDemand() Demand {
 	return &demand{}

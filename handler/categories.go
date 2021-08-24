@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
 	"rest-csv/factory"
@@ -13,10 +12,10 @@ import (
 	"rest-csv/response"
 )
 
-func ListCategories(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		category := f.Category("")
-		res, err := category.GetCategoryItems()
+		category := f.Category()
+		res, err := category.GetVehicles()
 		if err != nil {
 			l.Errorf("GetCategoryItems: unable to read data from category: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
@@ -27,84 +26,54 @@ func ListCategories(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	}
 }
 
-func GetCategoryItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func AddVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		name, ok := vars["name"]
-		if !ok {
-			l.Errorf("GetCategoryItems: could not read name from path params")
-			response.Error{Error: "invalid request"}.ClientError(w)
-			return
-		}
-
-		category := f.Category(name)
-		res, err := category.GetCategoryItems()
-		if err != nil {
-			l.Errorf("GetCategoryItems: unable to read data from category: %s", err)
-			response.Error{Error: "unexpected error happened"}.ServerError(w)
-			return
-		}
-
-		response.Success{Success: res}.Send(w)
-	}
-}
-
-func AddCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		name, ok := vars["name"]
-		if !ok {
-			l.Errorf("AddCategoryItem: could not read name from path params")
-			response.Error{Error: "invalid request"}.ClientError(w)
-			return
-		}
-
-		var payload []models.Item
+		var payload []models.Vehicle
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
-			l.Errorf("AddCategoryItem: invalid request payload")
+			l.Errorf("AddVehicles: invalid request payload: %s", err)
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
 		if len(payload) == 0 {
-			l.Errorf("AddCategoryItem: payload cannot be empty")
+			l.Errorf("AddVehicles: payload cannot be empty")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
-		category := f.Category(name)
-		err = category.AddCategoryItem(payload)
+		category := f.Category()
+		res, err := category.AddVehicles(payload)
 		if err != nil {
-			l.Errorf("AddCategoryItem: unable to write data into category: %s", err)
+			l.Errorf("AddVehicles: unable to write data: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
 
-		response.Success{Success: "item added successfully"}.Send(w)
+		response.Success{Success: fmt.Sprintf("%d item(s) added successfully", res)}.Send(w)
 	}
 }
 
-func DeleteItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func DeleteVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload models.Ids
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
-			l.Errorf("DeleteItems: invalid request payload")
+			l.Errorf("DeleteVehicles: invalid request payload")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
 		if len(payload.Ids) == 0 {
-			l.Errorf("DeleteCategoryItem: no ids to delete")
+			l.Errorf("DeleteVehicles: no ids to delete")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
-		category := f.Category("")
-		res, err := category.DeleteCategoryItems(payload.Ids)
+		category := f.Category()
+		res, err := category.DeleteVehicles(payload.Ids)
 		if err != nil {
-			l.Errorf("DeleteCategoryItem: unable to delete data from category: %s", err)
+			l.Errorf("DeleteVehicles: unable to delete data from category: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
@@ -113,38 +82,36 @@ func DeleteItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	}
 }
 
-func UpdateCategoryItem(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func UpdateVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		name, ok := vars["name"]
-		if !ok {
-			l.Errorf("UpdateCategoryItem: could not read name from path params")
-			response.Error{Error: "invalid request"}.ClientError(w)
-			return
-		}
-
-		var payload []models.Item
+		var payload []models.Vehicle
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
-			l.Errorf("UpdateCategoryItem: invalid request payload")
+			l.Errorf("UpdateVehicles: invalid request payload: %s", err)
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
 		if len(payload) == 0 {
-			l.Errorf("UpdateCategoryItem: id cannot be empty")
+			l.Errorf("UpdateVehicles: payload cannot be empty")
 			response.Error{Error: "invalid request"}.ClientError(w)
 			return
 		}
 
-		category := f.Category(name)
-		err = category.UpdateCategoryItem(payload)
+		if payload[0].Id == 0 {
+			l.Errorf("UpdateVehicles: id cannot be empty")
+			response.Error{Error: "invalid request"}.ClientError(w)
+			return
+		}
+
+		category := f.Category()
+		res, err := category.UpdateVehicles(payload)
 		if err != nil {
-			l.Errorf("UpdateCategoryItem: unable to delete data from category: %s", err)
+			l.Errorf("UpdateVehicles: unable to delete data from category: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
 
-		response.Success{Success: "item updated successfully"}.Send(w)
+		response.Success{Success: fmt.Sprintf("%d item(s) updated successfully", res)}.Send(w)
 	}
 }

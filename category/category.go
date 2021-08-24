@@ -1,11 +1,7 @@
 package category
 
 import (
-	"encoding/csv"
 	"fmt"
-	"os"
-
-	"github.com/google/uuid"
 
 	"rest-csv/builder"
 	"rest-csv/models"
@@ -13,35 +9,26 @@ import (
 )
 
 type Category interface {
-	GetCategories() []string
-	GetCategoryItems() ([][]string, error)
-	AddCategoryItem(item []models.Item) error
-	UpdateCategoryItem(item []models.Item) error
-	DeleteCategoryItems(id []int64) (int64, error)
+	GetVehicles() ([][]string, error)
+	AddVehicles(item []models.Vehicle) (int64, error)
+	UpdateVehicles(item []models.Vehicle) (int64, error)
+	DeleteVehicles(id []int64) (int64, error)
 }
 
 type category struct {
-	file            *os.File
-	categories      []string
 	categoryBuilder builder.Categories
 	queryExecutor   repository.QueryExecutor
 }
 
-func NewCategory(f *os.File, c []string, cb builder.Categories, qe repository.QueryExecutor) Category {
+func NewCategory(cb builder.Categories, qe repository.QueryExecutor) Category {
 	return &category{
-		file:            f,
-		categories:      c,
 		categoryBuilder: cb,
 		queryExecutor:   qe,
 	}
 }
 
-func (c *category) GetCategories() []string {
-	return c.categories
-}
-
-func (c *category) GetCategoryItems() ([][]string, error) {
-	query := c.categoryBuilder.GetCategoryItems()
+func (c *category) GetVehicles() ([][]string, error) {
+	query := c.categoryBuilder.GetVehicles()
 	rows, err := c.queryExecutor.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetCategoryItems: unable to get details: %s", err)
@@ -55,79 +42,48 @@ func (c *category) GetCategoryItems() ([][]string, error) {
 	return res, nil
 }
 
-func (c *category) AddCategoryItem(items []models.Item) error {
-	csvWriter := csv.NewWriter(c.file)
-	for _, item := range items {
-		id := uuid.New()
-		row := []string{id.String(), item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
-		err := csvWriter.Write(row)
-		if err != nil {
-			return fmt.Errorf("AddCategoryItem: unable to write data: %s", err)
-		}
-	}
-
-	csvWriter.Flush()
-
-	return nil
-}
-
-func (c *category) UpdateCategoryItem(items []models.Item) error {
-	data, err := c.GetCategoryItems()
-	if err != nil {
-		return fmt.Errorf("UpdateCategoryItem: unable to read file to update: %s", err)
-	}
-
-	updated := false
-	for _, item := range items {
-		for i := 1; i < len(data); i++ {
-			if data[i][0] == item.Id {
-				data[i] = []string{item.Id, item.BaNo, item.CDR, item.Driver, item.Oper, item.Tm_1, item.Tm_2, item.Demand, item.Fault, item.Remarks}
-				updated = true
-				break
-			}
-		}
-	}
-
-	if !updated {
-		return fmt.Errorf("UpdateCategoryItem: no record to update")
-	}
-
-	err = c.truncate(data)
-	if err != nil {
-		return fmt.Errorf("UpdateCategoryItem: %s", err)
-	}
-
-	return nil
-}
-
-func (c *category) DeleteCategoryItems(ids []int64) (int64, error) {
-	query := c.categoryBuilder.DeleteCategoryItems(ids)
+func (c *category) AddVehicles(items []models.Vehicle) (int64, error) {
+	query := c.categoryBuilder.AddVehicles(items)
+	fmt.Println(query)
 	res, err := c.queryExecutor.Exec(query)
 	if err != nil {
-		return -1, fmt.Errorf("DeleteCategoryItems: unable to delete: %s", err)
+		return -1, fmt.Errorf("AddVehicles: unable to write data: %s", err)
 	}
 
 	noOfRows, err := res.RowsAffected()
 	if err != nil {
-		return -1, fmt.Errorf("DeleteCategoryItems: unable parse delete result: %s", err)
+		return -1, fmt.Errorf("AddVehicles: unable to parse result: %s", err)
 	}
 
 	return noOfRows, nil
 }
 
-func (c *category) truncate(data [][]string) error {
-	csvWriter := csv.NewWriter(c.file)
-	err := c.file.Truncate(0)
+func (c *category) UpdateVehicles(items []models.Vehicle) (int64, error) {
+	query := c.categoryBuilder.UpdateVehicles(items)
+	rows, err := c.queryExecutor.Exec(query)
 	if err != nil {
-		return fmt.Errorf("unable to truncate file: %s", err)
+		return -1, fmt.Errorf("UpdateVehicles: unable to update data: %s", err)
 	}
 
-	err = csvWriter.WriteAll(data)
+	noOfRows, err := rows.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("unable to update file: %s", err)
+		return -1, fmt.Errorf("UpdateVehicles: unable to parse result: %s", err)
 	}
 
-	csvWriter.Flush()
+	return noOfRows, nil
+}
 
-	return nil
+func (c *category) DeleteVehicles(ids []int64) (int64, error) {
+	query := c.categoryBuilder.DeleteVehicles(ids)
+	res, err := c.queryExecutor.Exec(query)
+	if err != nil {
+		return -1, fmt.Errorf("DeleteVehicles: unable to delete: %s", err)
+	}
+
+	noOfRows, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("DeleteVehicles: unable parse delete result: %s", err)
+	}
+
+	return noOfRows, nil
 }
