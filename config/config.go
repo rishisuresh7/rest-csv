@@ -5,16 +5,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 )
 
 type Config struct {
 	Token        string
 	Port         int
 	LogLevel     uint32
-	Categories   []string
 	LogFile      *os.File
-	DataLocation string
 	Username     string
 	Password     string
 	Secret       string
@@ -60,23 +57,6 @@ func GenerateConfig() (*Config, error) {
 		c.LogFile = file
 	}
 
-	categoriesArray := os.Getenv("CATEGORIES")
-	if categoriesArray != "" {
-		categories := strings.Split(categoriesArray, ",")
-		for _, value := range categories {
-			c.Categories = append(c.Categories, strings.TrimSpace(value))
-		}
-	}
-
-	dataLoc := os.Getenv("DATA_LOCATION")
-	if dataLoc == "" {
-		return nil, fmt.Errorf("GenerateConfig: missing data location")
-	}
-
-	if err := os.MkdirAll(dataLoc, 0755); err != nil {
-		return nil, fmt.Errorf("GenerateConfig: unable to create directory: %s", err)
-	}
-
 	userName := os.Getenv("USERNAME")
 	if userName == "" {
 		return nil, fmt.Errorf("GenerateConfig: missing username")
@@ -94,7 +74,6 @@ func GenerateConfig() (*Config, error) {
 
 	c.Username = userName
 	c.Password = password
-	c.DataLocation = dataLoc
 
 	return c, nil
 }
