@@ -9,7 +9,7 @@ import (
 )
 
 type Demand interface {
-	GetDemands() ([][]string, error)
+	GetDemands(filters map[string]string) ([][]string, error)
 	AddDemands(demands []models.Demand) (int64, error)
 	UpdateDemands(demands []models.Demand) (int64, error)
 	DeleteDemands(ids []int64) (int64, error)
@@ -27,8 +27,8 @@ func NewDemand(b builder.Demand, qe repository.QueryExecutor) Demand {
 	}
 }
 
-func (d *demand) GetDemands() ([][]string, error) {
-	query := d.demandBuilder.GetDemands()
+func (d *demand) GetDemands(filters map[string]string) ([][]string, error) {
+	query := d.demandBuilder.GetDemands(filters)
 	rows, err := d.queryExecutor.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("ListDemands: unable to query demands: %s", err)

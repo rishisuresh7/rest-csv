@@ -9,7 +9,7 @@ import (
 )
 
 type Category interface {
-	GetVehicles() ([][]string, error)
+	GetVehicles(map[string]string) ([][]string, error)
 	AddVehicles(item []models.Vehicle) (int64, error)
 	UpdateVehicles(item []models.Vehicle) (int64, error)
 	DeleteVehicles(id []int64) (int64, error)
@@ -27,8 +27,8 @@ func NewCategory(cb builder.Categories, qe repository.QueryExecutor) Category {
 	}
 }
 
-func (c *category) GetVehicles() ([][]string, error) {
-	query := c.categoryBuilder.GetVehicles()
+func (c *category) GetVehicles(filters map[string]string) ([][]string, error) {
+	query := c.categoryBuilder.GetVehicles(filters)
 	rows, err := c.queryExecutor.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetCategoryItems: unable to get details: %s", err)
@@ -44,7 +44,6 @@ func (c *category) GetVehicles() ([][]string, error) {
 
 func (c *category) AddVehicles(items []models.Vehicle) (int64, error) {
 	query := c.categoryBuilder.AddVehicles(items)
-	fmt.Println(query)
 	res, err := c.queryExecutor.Exec(query)
 	if err != nil {
 		return -1, fmt.Errorf("AddVehicles: unable to write data: %s", err)

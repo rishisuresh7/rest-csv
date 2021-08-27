@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -14,8 +15,33 @@ import (
 
 func GetDemands(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		filters := map[string]string{}
+		queries := r.URL.Query()
+		if len(queries) > 0 {
+			for key, val := range queries {
+				if len(val) < 1 {
+					continue
+				}
+
+				if strings.ToLower(val[0]) == "all" {
+					continue
+				}
+
+				switch strings.ToLower(key) {
+				case "vehtype":
+					filters["veh_type"] = val[0]
+				case "squ":
+					filters["squadron"] = val[0]
+				default:
+					l.Errorf("GetDemands: unable to read data : invalid filters")
+					response.Error{Error: "invalid request"}.ClientError(w)
+					return
+				}
+			}
+		}
+
 		demand := f.Demand()
-		res, err := demand.GetDemands()
+		res, err := demand.GetDemands(filters)
 		if err != nil {
 			l.Errorf("GetDemands: unable to read data from demands: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)

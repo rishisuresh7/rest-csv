@@ -7,7 +7,7 @@ import (
 )
 
 type Demand interface {
-	GetDemands() string
+	GetDemands(filters map[string]string) string
 	AddDemands(items []models.Demand) string
 	UpdateDemands(items []models.Demand) string
 	DeleteDemands(ids []int64) string
@@ -19,8 +19,13 @@ func NewDemand() Demand {
 	return &demand{}
 }
 
-func (d *demand) GetDemands() string {
-	return "SELECT * FROM demands;"
+func (d *demand) GetDemands(filters map[string]string) string {
+	queryFilters := ""
+	for key, value := range filters {
+		queryFilters += fmt.Sprintf(" AND %s = '%s'", key, value)
+	}
+
+	return "SELECT * FROM demands WHERE 1=1 " + queryFilters
 }
 
 func (d *demand) AddDemands(items []models.Demand) string {

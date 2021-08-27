@@ -7,7 +7,7 @@ import (
 )
 
 type Categories interface {
-	GetVehicles() string
+	GetVehicles(filters map[string]string) string
 	AddVehicles(items []models.Vehicle) string
 	UpdateVehicles(items []models.Vehicle) string
 	DeleteVehicles(ids []int64) string
@@ -19,8 +19,17 @@ func NewCategories() Categories {
 	return &categories{}
 }
 
-func (c *categories) GetVehicles() string {
-	return `SELECT * FROM vehicles;`
+func (c *categories) GetVehicles(filters map[string]string) string {
+	queryFilters := ""
+	for key, value := range filters {
+		if key != "search" {
+			queryFilters += fmt.Sprintf(" AND %s = '%s'", key, value)
+		} else {
+			queryFilters += " AND (ba_number LIKE '%" + value +  "%')"
+		}
+	}
+
+	return `SELECT * FROM vehicles WHERE 1=1 ` + queryFilters
 }
 
 func (c *categories) AddVehicles(items []models.Vehicle) string {
