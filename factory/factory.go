@@ -2,12 +2,11 @@ package factory
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 	"sync"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 
 	"rest-csv/auth"
@@ -47,7 +46,7 @@ func NewFactory(c *config.Config, l *logrus.Logger) Factory {
 
 func (f *factory) connect() *sql.DB {
 	sqlDriver.Do(func() {
-		conn, err := sql.Open("mysql", fmt.Sprintf("%s:%s@/ems", f.config.SQLUsername, f.config.SQLPassword))
+		conn, err := sql.Open("sqlite3", f.config.SQLdb)
 		if err != nil {
 			f.logger.Fatalf("Unable to connect to DB: %s....quitting....\n", err)
 		}

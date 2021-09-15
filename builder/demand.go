@@ -44,7 +44,7 @@ func (d *demand) UpdateDemands(items []models.Demand) string {
 				equipment_demanded = '%s', squadron = '%s', status = '%s', type = '%s', veh_type = '%s'
 			WHERE id = %d;
 			`, item.BaNo, item.ControlNumber, item.DemandNumber, item.Depot, item.EquipmentDemanded,
-			item.Sqn, item.Status, item.Type, item.VehicleType, item.Id)
+		item.Sqn, item.Status, item.Type, item.VehicleType, item.Id)
 }
 
 func (d *demand) DeleteDemands(ids []int64) string {

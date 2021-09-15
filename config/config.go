@@ -8,28 +8,24 @@ import (
 )
 
 type Config struct {
-	Token        string
-	Port         int
-	LogLevel     uint32
-	LogFile      *os.File
-	Username     string
-	Password     string
-	Secret       string
-	SQLUsername  string
-	SQLPassword  string
-	SQLPort      int
+	Token    string
+	Port     int
+	LogLevel uint32
+	LogFile  *os.File
+	Username string
+	Password string
+	Secret   string
+	SQLdb    string
 }
 
 func GenerateConfig() (*Config, error) {
 	c := &Config{
-		Port:        9000,
-		Token:       "foobarbaz",
-		LogFile:     os.Stdout,
-		LogLevel:    5,
-		Secret:      "super-secure-secret",
-		SQLPort:     3306,
-		SQLUsername: "root",
-		SQLPassword: "rootroot",
+		Port:     9000,
+		Token:    "foobarbaz",
+		LogFile:  os.Stdout,
+		LogLevel: 5,
+		Secret:   "super-secure-secret",
+		SQLdb:    "./data.db",
 	}
 
 	token := os.Getenv("TOKEN")
@@ -70,6 +66,11 @@ func GenerateConfig() (*Config, error) {
 	secret := os.Getenv("SECRET")
 	if secret != "" {
 		c.Secret = secret
+	}
+
+	sqlDb := os.Getenv("SQL_DB")
+	if sqlDb != "" {
+		c.SQLdb = sqlDb
 	}
 
 	c.Username = userName
