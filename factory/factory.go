@@ -9,6 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 
+	"rest-csv/alerts"
 	"rest-csv/auth"
 	"rest-csv/builder"
 	"rest-csv/category"
@@ -23,6 +24,7 @@ var sqlDriver sync.Once
 type Factory interface {
 	Category() category.Category
 	Demand() demand.Demand
+	Alerts() alerts.Alerts
 	Auth() auth.Auth
 	NewJWTAuth() *middleware.JWTAuthenticator
 }
@@ -66,6 +68,10 @@ func (f *factory) Category() category.Category {
 
 func (f *factory) Demand() demand.Demand {
 	return demand.NewDemand(builder.NewDemand(), f.QueryExecutor())
+}
+
+func (f *factory) Alerts() alerts.Alerts {
+	return alerts.NewAlerts(builder.NewAlertBuilder(), f.QueryExecutor())
 }
 
 func (f *factory) QueryExecutor() repository.QueryExecutor {

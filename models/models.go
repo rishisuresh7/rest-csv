@@ -21,6 +21,27 @@ type Vehicle struct {
 	CMSOut           string `json:"cms_out"`
 }
 
+type Alert struct {
+	Id         int64  `json:"id"`
+	Name       string `json:"alertName"`
+	BaNo       string `json:"ba_number"`
+	AlertField string `json:"fieldName"`
+	LastValue  string `json:"lastValue"`
+	NextValue  string `json:"nextValue"`
+	Notify     bool   `json:"-"`
+}
+
+type Notification struct {
+	AlertId     int64  `json:"alertId"`
+	VehicleId   int64  `json:"vehicleId"`
+	AlertName   string `json:"alertName"`
+	BaNo        string `json:"baNumber"`
+	VehicleType string `json:"vehicleType"`
+	AlertField  string `json:"fieldName"`
+	LastValue   string `json:"lastValue"`
+	NextValue   string `json:"nextValue"`
+}
+
 type Demand struct {
 	Item
 	ControlNumber     string `json:"cn"`
