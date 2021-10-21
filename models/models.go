@@ -6,6 +6,7 @@ type Item struct {
 	Sqn         string `json:"sqn"`
 	VehicleType string `json:"vt"`
 	Type        string `json:"type"`
+	Remarks     string `json:"remarks"`
 }
 
 type Vehicle struct {
@@ -29,17 +30,20 @@ type Alert struct {
 	LastValue  string `json:"lastValue"`
 	NextValue  string `json:"nextValue"`
 	Notify     bool   `json:"-"`
+	Remarks    string `json:"remarks"`
 }
 
 type Notification struct {
-	AlertId     int64  `json:"alertId"`
-	VehicleId   int64  `json:"vehicleId"`
-	AlertName   string `json:"alertName"`
-	BaNo        string `json:"baNumber"`
-	VehicleType string `json:"vehicleType"`
-	AlertField  string `json:"fieldName"`
-	LastValue   string `json:"lastValue"`
-	NextValue   string `json:"nextValue"`
+	AlertId        int64  `json:"alertId"`
+	VehicleId      int64  `json:"vehicleId"`
+	AlertName      string `json:"alertName"`
+	BaNo           string `json:"baNumber"`
+	VehicleType    string `json:"vehicleType"`
+	AlertField     string `json:"fieldName"`
+	LastValue      string `json:"lastValue"`
+	NextValue      string `json:"nextValue"`
+	VehicleRemarks string `json:"vehicleRemarks"`
+	AlertRemarks   string `json:"alertRemarks"`
 }
 
 type Demand struct {

@@ -76,7 +76,7 @@ func GetAlerts(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 
 func UpdateAlerts(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var payload models.Alert
+		var payload models.Notification
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
 			l.Errorf("UpdateAlerts: unable to decode payload: %s", err)

@@ -11,14 +11,14 @@ import (
 
 type Alerts interface {
 	CreateAlert(alert models.Alert) error
-	UpdateAlert(alert models.Alert) error
+	UpdateAlert(alert models.Notification) error
 	GetAlerts() ([]models.Alert, error)
 	GetNotifications() ([]models.Notification, error)
 }
 
 type alert struct {
 	alertBuilder builder.AlertBuilder
-	exec repository.QueryExecutor
+	exec         repository.QueryExecutor
 }
 
 func NewAlerts(b builder.AlertBuilder, e repository.QueryExecutor) Alerts {
@@ -35,7 +35,7 @@ func (a *alert) CreateAlert(alert models.Alert) error {
 	return nil
 }
 
-func (a *alert) UpdateAlert(alert models.Alert) error {
+func (a *alert) UpdateAlert(alert models.Notification) error {
 	query := a.alertBuilder.UpdateAlert(alert)
 	_, err := a.exec.Exec(query)
 	if err != nil {
@@ -57,7 +57,7 @@ func (a *alert) GetAlerts() ([]models.Alert, error) {
 		return nil, fmt.Errorf("GetAlerts: unable to parse rows: %s", err)
 	}
 
-	var res []models.Alert
+	res := make([]models.Alert, 0)
 	for _, row := range rows {
 		alert := models.Alert{
 			Id:         stringToInteger(row[0]),
@@ -66,6 +66,7 @@ func (a *alert) GetAlerts() ([]models.Alert, error) {
 			AlertField: row[3],
 			LastValue:  row[4],
 			NextValue:  row[5],
+			Remarks:    row[6],
 		}
 		res = append(res, alert)
 	}
@@ -88,14 +89,16 @@ func (a *alert) GetNotifications() ([]models.Notification, error) {
 	res := make([]models.Notification, 0)
 	for _, row := range rows {
 		notification := models.Notification{
-			AlertId:     stringToInteger(row[0]),
-			VehicleId:   stringToInteger(row[1]),
-			AlertName:   row[2],
-			BaNo:        row[3],
-			VehicleType: row[4],
-			AlertField:  row[5],
-			LastValue:   row[6],
-			NextValue:   row[7],
+			AlertId:        stringToInteger(row[0]),
+			VehicleId:      stringToInteger(row[1]),
+			AlertName:      row[2],
+			BaNo:           row[3],
+			VehicleType:    row[4],
+			AlertField:     row[5],
+			LastValue:      row[6],
+			NextValue:      row[7],
+			VehicleRemarks: row[8],
+			AlertRemarks:   row[9],
 		}
 		res = append(res, notification)
 	}
