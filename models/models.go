@@ -20,6 +20,8 @@ type Vehicle struct {
 	TM2              string `json:"tm_2"`
 	CMSIn            string `json:"cms_in"`
 	CMSOut           string `json:"cms_out"`
+	WorkshopIn       string `json:"workshop_in"`
+	WorkshopOut      string `json:"workshop_out"`
 }
 
 type Alert struct {
