@@ -2,26 +2,29 @@ package models
 
 type Item struct {
 	Id          int64  `json:"id"`
-	BaNo        string `json:"ba_no"`
-	Sqn         string `json:"sqn"`
-	VehicleType string `json:"vt"`
+	Sqn         string `json:"squadron"`
+	VehicleType string `json:"vehicleType"`
+	BaNo        string `json:"baNumber"`
 	Type        string `json:"type"`
 	Remarks     string `json:"remarks"`
 }
 
 type Vehicle struct {
 	Item
+	Kilometers       int64  `json:"kilometers"`
+	EngineHours      int64  `json:"engineHours"`
 	Efc              int64  `json:"efc"`
-	EngineHours      int64  `json:"eh"`
-	Kilometers       int64  `json:"km"`
-	SeriesInspection string `json:"si"`
-	Tag              string `json:"tag"`
-	TM1              string `json:"tm_1"`
-	TM2              string `json:"tm_2"`
-	CMSIn            string `json:"cms_in"`
-	CMSOut           string `json:"cms_out"`
-	WorkshopIn       string `json:"workshop_in"`
-	WorkshopOut      string `json:"workshop_out"`
+	TM1              string `json:"tm1"`
+	TM2              string `json:"tm2"`
+	CMSIn            string `json:"cmsIn"`
+	CMSOut           string `json:"cmsOut"`
+	WorkshopIn       string `json:"workshopIn"`
+	WorkshopOut      string `json:"workshopOut"`
+	MR1              string `json:"mr1"`
+	MR2              string `json:"mr2"`
+	FDFiring         string  `json:"fdFiring"`
+	SeriesInspection string `json:"seriesInspection"`
+	Trg              string `json:"trg"`
 }
 
 type Alert struct {
@@ -50,11 +53,13 @@ type Notification struct {
 
 type Demand struct {
 	Item
-	ControlNumber     string `json:"cn"`
-	DemandNumber      string `json:"dn"`
+	ControlNumber     string `json:"controlNumber"`
+	ControlDate       string `json:"controlDate"`
+	DemandNumber      string `json:"demandNumber"`
+	DemandDate        string `json:"demandDate"`
 	Depot             string `json:"depot"`
 	Status            string `json:"status"`
-	EquipmentDemanded string `json:"ed"`
+	EquipmentDemanded string `json:"equipmentDemanded"`
 }
 
 type Ids struct {

@@ -96,8 +96,8 @@ func UpdateAlerts(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	}
 }
 
-func Tabs(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
+func Tabs(_ factory.Factory, _ *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		response.Success{Success: []string{"Vehicle A", "Vehicle B", "Others", "Demands"}}.Send(w)
+		response.Success{Success: []string{"A Vehicle", "B Vehicle", "ACSFP", "Demands"}}.Send(w)
 	}
 }

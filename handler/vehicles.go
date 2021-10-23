@@ -6,16 +6,37 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
+	"rest-csv/constant"
 	"rest-csv/factory"
 	"rest-csv/models"
 	"rest-csv/response"
+	"rest-csv/utility"
 )
+
+var vehicleTypes = []string{constant.AVehicle, constant.BVehicle, constant.Others}
 
 func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		filters := map[string]string{}
+		vars := mux.Vars(r)
+		vehicleType, ok := vars["vehicleType"]
+		if !ok {
+			l.Errorf("GetVehicles: 'vehicleType' not found in path param")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
+		if !utility.CheckList(vehicleTypes, strings.ToLower(vehicleType)) {
+			l.Errorf("GetVehicles: invalid vehicle type")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
+		filters := map[string]string{
+			"vehicleType": strings.ToLower(vehicleType),
+		}
 		queries := r.URL.Query()
 		if len(queries) > 0 {
 			for key, val := range queries {
@@ -28,11 +49,9 @@ func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 				}
 
 				switch strings.ToLower(key) {
-				case "vehtype":
-					filters["veh_type"] = val[0]
 				case "squ":
 					filters["squadron"] = val[0]
-				case "q":
+				case "search":
 					filters["search"] = val[0]
 				default:
 					l.Errorf("GetVehicles: unable to read data : invalid filters")
@@ -42,7 +61,7 @@ func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			}
 		}
 
-		vehicle := f.Vehicles("")
+		vehicle := f.Vehicles(strings.ToLower(vehicleType))
 		res, err := vehicle.GetVehicles(filters)
 		if err != nil {
 			l.Errorf("GetCategoryItems: unable to read data from vehicle: %s", err)
@@ -56,6 +75,20 @@ func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 
 func AddVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		vehicleType, ok := vars["vehicleType"]
+		if !ok {
+			l.Errorf("AddVehicles: 'vehicleType' not found in path param")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
+		if !utility.CheckList(vehicleTypes, strings.ToLower(vehicleType)) {
+			l.Errorf("AddVehicles: invalid vehicle type")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
 		var payload []models.Vehicle
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
@@ -70,7 +103,7 @@ func AddVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		vehicle := f.Vehicles("")
+		vehicle := f.Vehicles(strings.ToLower(vehicleType))
 		res, err := vehicle.AddVehicles(payload)
 		if err != nil {
 			l.Errorf("AddVehicles: unable to write data: %s", err)
@@ -84,6 +117,20 @@ func AddVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 
 func DeleteVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		vehicleType, ok := vars["vehicleType"]
+		if !ok {
+			l.Errorf("DeleteVehicles: 'vehicleType' not found in path param")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
+		if !utility.CheckList(vehicleTypes, strings.ToLower(vehicleType)) {
+			l.Errorf("DeleteVehicles: invalid vehicle type")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
 		var payload models.Ids
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
@@ -98,7 +145,7 @@ func DeleteVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		vehicle := f.Vehicles("")
+		vehicle := f.Vehicles(strings.ToLower(vehicleType))
 		res, err := vehicle.DeleteVehicles(payload.Ids)
 		if err != nil {
 			l.Errorf("DeleteVehicles: unable to delete data from vehicle: %s", err)
@@ -112,6 +159,20 @@ func DeleteVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 
 func UpdateVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		vehicleType, ok := vars["vehicleType"]
+		if !ok {
+			l.Errorf("UpdateVehicles: 'vehicleType' not found in path param")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
+		if !utility.CheckList(vehicleTypes, strings.ToLower(vehicleType)) {
+			l.Errorf("UpdateVehicles: invalid vehicle type")
+			response.Error{Error: "bad request"}.ClientError(w)
+			return
+		}
+
 		var payload []models.Vehicle
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
@@ -132,7 +193,7 @@ func UpdateVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		vehicle := f.Vehicles("")
+		vehicle := f.Vehicles(strings.ToLower(vehicleType))
 		res, err := vehicle.UpdateVehicles(payload)
 		if err != nil {
 			l.Errorf("UpdateVehicles: unable to delete data from vehicle: %s", err)
