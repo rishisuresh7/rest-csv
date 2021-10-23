@@ -12,17 +12,17 @@ import (
 	"rest-csv/alerts"
 	"rest-csv/auth"
 	"rest-csv/builder"
-	"rest-csv/category"
 	"rest-csv/config"
 	"rest-csv/demand"
 	"rest-csv/middleware"
 	"rest-csv/repository"
+	"rest-csv/vehicle"
 )
 
 var sqlDriver sync.Once
 
 type Factory interface {
-	Category() category.Category
+	Vehicles(vehicleType string) vehicle.Vehicle
 	Demand() demand.Demand
 	Alerts() alerts.Alerts
 	Auth() auth.Auth
@@ -62,8 +62,8 @@ func (f *factory) connect() *sql.DB {
 	return f.db
 }
 
-func (f *factory) Category() category.Category {
-	return category.NewCategory(builder.NewCategories(), f.QueryExecutor())
+func (f *factory) Vehicles(vehicleType string) vehicle.Vehicle {
+	return vehicle.NewVehicle(builder.NewVehicles(vehicleType), f.QueryExecutor())
 }
 
 func (f *factory) Demand() demand.Demand {

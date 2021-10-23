@@ -6,20 +6,20 @@ import (
 	"rest-csv/models"
 )
 
-type Categories interface {
+type Vehicles interface {
 	GetVehicles(filters map[string]string) string
 	AddVehicles(items []models.Vehicle) string
 	UpdateVehicles(items []models.Vehicle) string
 	DeleteVehicles(ids []int64) string
 }
 
-type categories struct{}
+type vehicles struct{}
 
-func NewCategories() Categories {
-	return &categories{}
+func NewVehicles(vehicleType string) Vehicles {
+	return &vehicles{}
 }
 
-func (c *categories) GetVehicles(filters map[string]string) string {
+func (c *vehicles) GetVehicles(filters map[string]string) string {
 	queryFilters := ""
 	for key, value := range filters {
 		if key != "search" {
@@ -32,7 +32,7 @@ func (c *categories) GetVehicles(filters map[string]string) string {
 	return `SELECT * FROM vehicles WHERE 1=1 ` + queryFilters
 }
 
-func (c *categories) AddVehicles(items []models.Vehicle) string {
+func (c *vehicles) AddVehicles(items []models.Vehicle) string {
 	item := items[0]
 	return fmt.Sprintf(`INSERT INTO vehicles(id, squadron, veh_type, ba_number, type, kilometers,
 			engine_hours, efc, tm_1, tm_2, cms_in, cms_out, workshop_in, workshop_out, series_inspection, tag_op, remarks)
@@ -41,7 +41,7 @@ func (c *categories) AddVehicles(items []models.Vehicle) string {
 		item.TM1, item.TM2, item.CMSIn, item.CMSOut, item.WorkshopIn, item.WorkshopOut, item.SeriesInspection, item.Tag, item.Remarks)
 }
 
-func (c *categories) UpdateVehicles(items []models.Vehicle) string {
+func (c *vehicles) UpdateVehicles(items []models.Vehicle) string {
 	item := items[0]
 	return fmt.Sprintf(`UPDATE vehicles
 			SET squadron = '%s', veh_type = '%s', ba_number = '%s', type = '%s',
@@ -53,7 +53,7 @@ func (c *categories) UpdateVehicles(items []models.Vehicle) string {
 		item.TM1, item.TM2, item.CMSIn, item.CMSOut, item.SeriesInspection, item.Tag, item.Remarks, item.WorkshopIn, item.WorkshopOut, item.Id)
 }
 
-func (c *categories) DeleteVehicles(ids []int64) string {
+func (c *vehicles) DeleteVehicles(ids []int64) string {
 	queryString := "( "
 	for i := range ids {
 		if i != len(ids)-1 {

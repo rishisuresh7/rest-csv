@@ -1,4 +1,4 @@
-package category
+package vehicle
 
 import (
 	"fmt"
@@ -8,27 +8,27 @@ import (
 	"rest-csv/repository"
 )
 
-type Category interface {
+type Vehicle interface {
 	GetVehicles(map[string]string) ([][]string, error)
 	AddVehicles(item []models.Vehicle) (int64, error)
 	UpdateVehicles(item []models.Vehicle) (int64, error)
 	DeleteVehicles(id []int64) (int64, error)
 }
 
-type category struct {
-	categoryBuilder builder.Categories
-	queryExecutor   repository.QueryExecutor
+type vehicle struct {
+	vehicleBuilder builder.Vehicles
+	queryExecutor  repository.QueryExecutor
 }
 
-func NewCategory(cb builder.Categories, qe repository.QueryExecutor) Category {
-	return &category{
-		categoryBuilder: cb,
+func NewVehicle(cb builder.Vehicles, qe repository.QueryExecutor) Vehicle {
+	return &vehicle{
+		vehicleBuilder: cb,
 		queryExecutor:   qe,
 	}
 }
 
-func (c *category) GetVehicles(filters map[string]string) ([][]string, error) {
-	query := c.categoryBuilder.GetVehicles(filters)
+func (c *vehicle) GetVehicles(filters map[string]string) ([][]string, error) {
+	query := c.vehicleBuilder.GetVehicles(filters)
 	rows, err := c.queryExecutor.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetCategoryItems: unable to get details: %s", err)
@@ -42,8 +42,8 @@ func (c *category) GetVehicles(filters map[string]string) ([][]string, error) {
 	return res, nil
 }
 
-func (c *category) AddVehicles(items []models.Vehicle) (int64, error) {
-	query := c.categoryBuilder.AddVehicles(items)
+func (c *vehicle) AddVehicles(items []models.Vehicle) (int64, error) {
+	query := c.vehicleBuilder.AddVehicles(items)
 	res, err := c.queryExecutor.Exec(query)
 	if err != nil {
 		return -1, fmt.Errorf("AddVehicles: unable to write data: %s", err)
@@ -57,8 +57,8 @@ func (c *category) AddVehicles(items []models.Vehicle) (int64, error) {
 	return noOfRows, nil
 }
 
-func (c *category) UpdateVehicles(items []models.Vehicle) (int64, error) {
-	query := c.categoryBuilder.UpdateVehicles(items)
+func (c *vehicle) UpdateVehicles(items []models.Vehicle) (int64, error) {
+	query := c.vehicleBuilder.UpdateVehicles(items)
 	rows, err := c.queryExecutor.Exec(query)
 	if err != nil {
 		return -1, fmt.Errorf("UpdateVehicles: unable to update data: %s", err)
@@ -72,8 +72,8 @@ func (c *category) UpdateVehicles(items []models.Vehicle) (int64, error) {
 	return noOfRows, nil
 }
 
-func (c *category) DeleteVehicles(ids []int64) (int64, error) {
-	query := c.categoryBuilder.DeleteVehicles(ids)
+func (c *vehicle) DeleteVehicles(ids []int64) (int64, error) {
+	query := c.vehicleBuilder.DeleteVehicles(ids)
 	res, err := c.queryExecutor.Exec(query)
 	if err != nil {
 		return -1, fmt.Errorf("DeleteVehicles: unable to delete: %s", err)

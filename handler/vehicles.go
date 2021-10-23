@@ -42,10 +42,10 @@ func GetVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			}
 		}
 
-		category := f.Category()
-		res, err := category.GetVehicles(filters)
+		vehicle := f.Vehicles("")
+		res, err := vehicle.GetVehicles(filters)
 		if err != nil {
-			l.Errorf("GetCategoryItems: unable to read data from category: %s", err)
+			l.Errorf("GetCategoryItems: unable to read data from vehicle: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
@@ -70,8 +70,8 @@ func AddVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		category := f.Category()
-		res, err := category.AddVehicles(payload)
+		vehicle := f.Vehicles("")
+		res, err := vehicle.AddVehicles(payload)
 		if err != nil {
 			l.Errorf("AddVehicles: unable to write data: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
@@ -98,10 +98,10 @@ func DeleteVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		category := f.Category()
-		res, err := category.DeleteVehicles(payload.Ids)
+		vehicle := f.Vehicles("")
+		res, err := vehicle.DeleteVehicles(payload.Ids)
 		if err != nil {
-			l.Errorf("DeleteVehicles: unable to delete data from category: %s", err)
+			l.Errorf("DeleteVehicles: unable to delete data from vehicle: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
@@ -132,10 +132,10 @@ func UpdateVehicles(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 			return
 		}
 
-		category := f.Category()
-		res, err := category.UpdateVehicles(payload)
+		vehicle := f.Vehicles("")
+		res, err := vehicle.UpdateVehicles(payload)
 		if err != nil {
-			l.Errorf("UpdateVehicles: unable to delete data from category: %s", err)
+			l.Errorf("UpdateVehicles: unable to delete data from vehicle: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}

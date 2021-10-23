@@ -99,7 +99,7 @@ func DeleteDemands(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 		category := f.Demand()
 		res, err := category.DeleteDemands(payload.Ids)
 		if err != nil {
-			l.Errorf("DeleteDemands: unable to delete data from category: %s", err)
+			l.Errorf("DeleteDemands: unable to delete data from vehicle: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
@@ -133,7 +133,7 @@ func UpdateDemands(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 		category := f.Demand()
 		res, err := category.UpdateDemands(payload)
 		if err != nil {
-			l.Errorf("UpdateDemands: unable to delete data from category: %s", err)
+			l.Errorf("UpdateDemands: unable to delete data from vehicle: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
