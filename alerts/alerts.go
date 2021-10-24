@@ -12,8 +12,10 @@ import (
 type Alerts interface {
 	CreateAlert(alert models.Alert) error
 	UpdateAlert(alert models.Notification) error
+	ModifyAlert(alert models.Alert) error
 	GetAlerts() ([]models.Alert, error)
 	GetNotifications() ([]models.Notification, error)
+	DeleteAlerts(ids []int64) (int64, error)
 }
 
 type alert struct {
@@ -40,6 +42,16 @@ func (a *alert) UpdateAlert(alert models.Notification) error {
 	_, err := a.exec.Exec(query)
 	if err != nil {
 		return fmt.Errorf("UpdateAlert: unable to update alert: %s", err)
+	}
+
+	return nil
+}
+
+func (a *alert) ModifyAlert(alert models.Alert) error {
+	query := a.alertBuilder.ModifyAlert(alert)
+	_, err := a.exec.Exec(query)
+	if err != nil {
+		return fmt.Errorf("ModifyAlert: unable to update alert: %s", err)
 	}
 
 	return nil
@@ -113,4 +125,19 @@ func stringToInteger(value string) int64 {
 	}
 
 	return num
+}
+
+func (a *alert) DeleteAlerts(ids []int64) (int64, error) {
+	query := a.alertBuilder.DeleteAlerts(ids)
+	res, err := a.exec.Exec(query)
+	if err != nil {
+		return -1, fmt.Errorf("DeleteAlerts: unable to delete: %s", err)
+	}
+
+	noOfRows, err := res.RowsAffected()
+	if err != nil {
+		return -1, fmt.Errorf("DeleteAlerts: unable parse delete result: %s", err)
+	}
+
+	return noOfRows, nil
 }

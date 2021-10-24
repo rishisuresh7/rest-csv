@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	"strings"
 
 	"rest-csv/constant"
 	"rest-csv/models"
@@ -34,19 +35,23 @@ func (c *aVehicles) GetVehicles(filters map[string]string) string {
 		}
 	}
 
-	return `SELECT * FROM a_vehicles WHERE 1=1 ` + queryFilters
+	return fmt.Sprintf(`SELECT * FROM a_vehicles WHERE 1=1 %s ORDER BY squadron`, queryFilters)
 }
 
 func (c *aVehicles) AddVehicles(items []models.Vehicle) string {
-	item := items[0]
+	var values []string
+	for _, item := range items {
+		value := fmt.Sprintf(`(NULL, '%s', '%s', '%s', '%s', '%d', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s',
+			'%s', '%s', '%s', '%s', '%s')`, item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.EngineHours, item.Efc, item.TM1, item.TM2,
+			item.CMSIn, item.CMSOut, item.WorkshopIn, item.WorkshopOut, item.MR1, item.MR2, item.FDFiring,
+			item.SeriesInspection, item.Trg, item.Remarks)
+		values = append(values, value)
+	}
+
 	return fmt.Sprintf(`INSERT INTO a_vehicles(id, squadron, veh_type, ba_number, type, kilometers, engine_hours,
 			efc, tm_1, tm_2, cms_in, cms_out, workshop_in, workshop_out, mr_1, mr_2, fd_firing,
 			series_inspection, trg_op, remarks)
-			VALUES(NULL, '%s', '%s', '%s', '%s', '%d', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s',
-			'%s', '%s', '%s', '%s', '%s')`,
-		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.EngineHours, item.Efc, item.TM1, item.TM2,
-		item.CMSIn, item.CMSOut, item.WorkshopIn, item.WorkshopOut, item.MR1, item.MR2, item.FDFiring,
-		item.SeriesInspection, item.Trg, item.Remarks)
+			VALUES %s`, strings.Join(values, ", "))
 }
 
 func (c *aVehicles) UpdateVehicles(items []models.Vehicle) string {
@@ -87,16 +92,21 @@ func (c *bVehicles) GetVehicles(filters map[string]string) string {
 		}
 	}
 
-	return `SELECT * FROM b_vehicles WHERE 1=1 ` + queryFilters
+	return fmt.Sprintf(`SELECT * FROM b_vehicles WHERE 1=1 %s ORDER BY squadron`, queryFilters)
 }
 
 func (c *bVehicles) AddVehicles(items []models.Vehicle) string {
-	item := items[0]
+	var values []string
+	for _, item := range items {
+		value := fmt.Sprintf(`(NULL, '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s')`,
+			item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.CMSIn, item.CMSOut,
+			item.WorkshopIn, item.WorkshopOut, item.Remarks)
+		values = append(values, value)
+	}
+
 	return fmt.Sprintf(`INSERT INTO b_vehicles(id, squadron, veh_type, ba_number, type, kilometers,
 			cms_in, cms_out, workshop_in, workshop_out, remarks)
-			VALUES(NULL, '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s')`,
-		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.CMSIn, item.CMSOut,
-		item.WorkshopIn, item.WorkshopOut, item.Remarks)
+			VALUES %s`, strings.Join(values, ", "))
 }
 
 func (c *bVehicles) UpdateVehicles(items []models.Vehicle) string {

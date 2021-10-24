@@ -108,7 +108,7 @@ func DeleteACSFPItems(f factory.Factory, l *logrus.Logger) http.HandlerFunc {
 		acsfp := f.ACSFP()
 		res, err := acsfp.DeleteItems(payload.Ids)
 		if err != nil {
-			l.Errorf("DeleteACSFPItems: unable to delete data from vehicle: %s", err)
+			l.Errorf("DeleteACSFPItems: unable to delete data from ACSFP: %s", err)
 			response.Error{Error: "unexpected error happened"}.ServerError(w)
 			return
 		}
