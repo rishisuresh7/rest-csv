@@ -22,7 +22,7 @@ type Vehicle struct {
 	WorkshopOut      string `json:"workshopOut"`
 	MR1              string `json:"mr1"`
 	MR2              string `json:"mr2"`
-	FDFiring         string  `json:"fdFiring"`
+	FDFiring         string `json:"fdFiring"`
 	SeriesInspection string `json:"seriesInspection"`
 	Trg              string `json:"trg"`
 }

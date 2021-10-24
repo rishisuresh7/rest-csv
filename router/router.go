@@ -23,6 +23,11 @@ func NewRouter(f factory.Factory, l *logrus.Logger) *mux.Router {
 	router.HandleFunc("/demands", authorizer.Authorize(handler.UpdateDemands(f, l))).Methods("PATCH")
 	router.HandleFunc("/demands", authorizer.Authorize(handler.DeleteDemands(f, l))).Methods("DELETE")
 
+	router.HandleFunc("/acsfp", authorizer.Authorize(handler.GetACSFPItems(f, l))).Methods("GET")
+	router.HandleFunc("/acsfp", authorizer.Authorize(handler.AddACSFPItems(f, l))).Methods("POST")
+	router.HandleFunc("/acsfp", authorizer.Authorize(handler.UpdateACSFPItems(f, l))).Methods("PATCH")
+	router.HandleFunc("/acsfp", authorizer.Authorize(handler.DeleteACSFPItems(f, l))).Methods("DELETE")
+
 	router.HandleFunc("/notifications", authorizer.Authorize(handler.GetNotifications(f, l))).Methods("GET")
 	router.HandleFunc("/alerts", authorizer.Authorize(handler.CreateAlerts(f, l))).Methods("POST")
 	router.HandleFunc("/alerts", authorizer.Authorize(handler.UpdateAlerts(f, l))).Methods("PATCH")

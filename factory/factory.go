@@ -9,6 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 
+	"rest-csv/acsfp"
 	"rest-csv/alerts"
 	"rest-csv/auth"
 	"rest-csv/builder"
@@ -24,6 +25,7 @@ var sqlDriver sync.Once
 type Factory interface {
 	Vehicles(vehicleType string) vehicle.Vehicle
 	Demand() demand.Demand
+	ACSFP() acsfp.ACSFP
 	Alerts() alerts.Alerts
 	Auth() auth.Auth
 	NewJWTAuth() *middleware.JWTAuthenticator
@@ -68,6 +70,10 @@ func (f *factory) Vehicles(vehicleType string) vehicle.Vehicle {
 
 func (f *factory) Demand() demand.Demand {
 	return demand.NewDemand(builder.NewDemand(), f.QueryExecutor())
+}
+
+func (f *factory) ACSFP() acsfp.ACSFP {
+	return acsfp.NewACSFP(builder.NewACSFPBuilder(), f.QueryExecutor())
 }
 
 func (f *factory) Alerts() alerts.Alerts {

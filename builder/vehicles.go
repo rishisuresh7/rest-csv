@@ -93,19 +93,19 @@ func (c *bVehicles) GetVehicles(filters map[string]string) string {
 func (c *bVehicles) AddVehicles(items []models.Vehicle) string {
 	item := items[0]
 	return fmt.Sprintf(`INSERT INTO b_vehicles(id, squadron, veh_type, ba_number, type, kilometers,
-			engine_hours, cms_in, cms_out, workshop_in, workshop_out, remarks)
-			VALUES(NULL, '%s', '%s', '%s', '%s', '%d', %d, '%s', '%s', '%s', '%s', '%s')`,
-		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.EngineHours, item.CMSIn, item.CMSOut,
+			cms_in, cms_out, workshop_in, workshop_out, remarks)
+			VALUES(NULL, '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s')`,
+		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.CMSIn, item.CMSOut,
 		item.WorkshopIn, item.WorkshopOut, item.Remarks)
 }
 
 func (c *bVehicles) UpdateVehicles(items []models.Vehicle) string {
 	item := items[0]
 	return fmt.Sprintf(`UPDATE b_vehicles
-			SET squadron = '%s', veh_type = '%s', ba_number = '%s', type = '%s', kilometers = %d, engine_hours = %d,
+			SET squadron = '%s', veh_type = '%s', ba_number = '%s', type = '%s', kilometers = %d,
 			cms_in = '%s', cms_out = '%s', remarks = '%s', workshop_in = '%s', workshop_out = '%s'
 			WHERE id = %d;
-			`, item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.EngineHours, item.CMSIn,
+			`, item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.CMSIn,
 			item.CMSOut, item.Remarks, item.WorkshopIn, item.WorkshopOut, item.Id)
 }
 

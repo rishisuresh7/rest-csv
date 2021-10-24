@@ -30,21 +30,22 @@ func (d *demand) GetDemands(filters map[string]string) string {
 
 func (d *demand) AddDemands(items []models.Demand) string {
 	item := items[0]
-	return fmt.Sprintf(`INSERT INTO demands(id, ba_number, control_number, demand_number, depot,
-			equipment_demanded, squadron, status, type, veh_type)
-			VALUES(NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
-		item.BaNo, item.ControlNumber, item.DemandNumber, item.Depot, item.EquipmentDemanded,
-		item.Sqn, item.Status, item.Type, item.VehicleType)
+	return fmt.Sprintf(`INSERT INTO demands(id, squadron, veh_type, ba_number, type, equipment_demanded,
+			depot, demand_number, demand_date, control_number, control_date, status)
+			VALUES(NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
+		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.EquipmentDemanded,
+		item.Depot, item.DemandNumber, item.DemandDate, item.ControlNumber, item.ControlDate, item.Status)
 }
 
 func (d *demand) UpdateDemands(items []models.Demand) string {
 	item := items[0]
 	return fmt.Sprintf(`UPDATE demands
 			SET ba_number = '%s', control_number = '%s', demand_number = '%s', depot = '%s',
-				equipment_demanded = '%s', squadron = '%s', status = '%s', type = '%s', veh_type = '%s'
+				equipment_demanded = '%s', squadron = '%s', status = '%s', type = '%s', veh_type = '%s',
+				demand_date = '%s', control_date = '%s'
 			WHERE id = %d;
 			`, item.BaNo, item.ControlNumber, item.DemandNumber, item.Depot, item.EquipmentDemanded,
-		item.Sqn, item.Status, item.Type, item.VehicleType, item.Id)
+		item.Sqn, item.Status, item.Type, item.VehicleType, item.DemandDate, item.ControlDate, item.Id)
 }
 
 func (d *demand) DeleteDemands(ids []int64) string {

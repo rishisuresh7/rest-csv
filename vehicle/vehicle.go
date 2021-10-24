@@ -89,15 +89,14 @@ func (c *vehicle) getVehicleRow(vehicleType string, row []string) models.Vehicle
 			Trg:              row[18],
 		}
 	} else {
-		item.Remarks = row[11]
+		item.Remarks = row[10]
 		return models.Vehicle{
 			Item:        item,
 			Kilometers:  stringToInteger(row[5]),
-			EngineHours: stringToInteger(row[6]),
-			CMSIn:       row[7],
-			CMSOut:      row[8],
-			WorkshopIn:  row[9],
-			WorkshopOut: row[10],
+			CMSIn:       row[6],
+			CMSOut:      row[7],
+			WorkshopIn:  row[8],
+			WorkshopOut: row[9],
 		}
 	}
 }
