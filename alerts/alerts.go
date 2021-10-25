@@ -87,7 +87,16 @@ func (a *alert) GetAlerts() ([]models.Alert, error) {
 }
 
 func (a *alert) GetNotifications() ([]models.Notification, error) {
-	query := a.alertBuilder.GetNotifications()
+	alerts, err := a.GetAlerts()
+	if err != nil {
+		return nil, fmt.Errorf("GetNotifications: unable to query db for alerts: %s", err)
+	}
+
+	if len(alerts) == 0 {
+		return []models.Notification{}, nil
+	}
+
+	query := a.alertBuilder.GetNotifications(alerts)
 	sqlRows, err := a.exec.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("GetNotifications: unable to query db: %s", err)
