@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	"strings"
 
 	"rest-csv/models"
 )
@@ -29,12 +30,18 @@ func (d *demand) GetDemands(filters map[string]string) string {
 }
 
 func (d *demand) AddDemands(items []models.Demand) string {
-	item := items[0]
+	var values []string
+	for _, item := range items {
+		value := fmt.Sprintf(`(NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
+			item.Sqn, item.VehicleType, item.BaNo, item.Type, item.EquipmentDemanded,
+			item.Depot, item.DemandNumber, item.DemandDate, item.ControlNumber, item.ControlDate, item.Status)
+
+		values = append(values, value)
+	}
+
 	return fmt.Sprintf(`INSERT INTO demands(id, squadron, veh_type, ba_number, type, equipment_demanded,
 			depot, demand_number, demand_date, control_number, control_date, status)
-			VALUES(NULL, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')`,
-		item.Sqn, item.VehicleType, item.BaNo, item.Type, item.EquipmentDemanded,
-		item.Depot, item.DemandNumber, item.DemandDate, item.ControlNumber, item.ControlDate, item.Status)
+			VALUES %s`, strings.Join(values, ", "))
 }
 
 func (d *demand) UpdateDemands(items []models.Demand) string {

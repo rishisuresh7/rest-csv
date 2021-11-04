@@ -14,7 +14,10 @@ import (
 	"rest-csv/auth"
 	"rest-csv/builder"
 	"rest-csv/config"
+	"rest-csv/constant"
 	"rest-csv/demand"
+	"rest-csv/export"
+	"rest-csv/importer"
 	"rest-csv/middleware"
 	"rest-csv/repository"
 	"rest-csv/vehicle"
@@ -26,6 +29,8 @@ type Factory interface {
 	Vehicles(vehicleType string) vehicle.Vehicle
 	Demand() demand.Demand
 	ACSFP() acsfp.ACSFP
+	Exporter() export.Exporter
+	Importer(viewName string) importer.Importer
 	Alerts() alerts.Alerts
 	Auth() auth.Auth
 	NewJWTAuth() *middleware.JWTAuthenticator
@@ -78,6 +83,26 @@ func (f *factory) ACSFP() acsfp.ACSFP {
 
 func (f *factory) Alerts() alerts.Alerts {
 	return alerts.NewAlerts(builder.NewAlertBuilder(), f.QueryExecutor())
+}
+
+func (f *factory) Exporter() export.Exporter {
+	return export.NewExporter(builder.NewExportBuilder(), f.QueryExecutor())
+}
+
+func (f *factory) Importer(viewName string) importer.Importer {
+	var inserter interface{}
+	switch viewName {
+	case "a_vehicles":
+		inserter = f.Vehicles(constant.AVehicle)
+	case "b_vehicles":
+		inserter = f.Vehicles(constant.BVehicle)
+	case "demands":
+		inserter = f.Demand()
+	case "acsfp":
+		inserter = f.ACSFP()
+	}
+
+	return importer.NewImporter(inserter, f.QueryExecutor())
 }
 
 func (f *factory) QueryExecutor() repository.QueryExecutor {
