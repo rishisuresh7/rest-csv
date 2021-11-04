@@ -25,7 +25,7 @@ type vehicle struct {
 func NewVehicle(cb builder.Vehicles, qe repository.QueryExecutor) Vehicle {
 	return &vehicle{
 		vehicleBuilder: cb,
-		queryExecutor:   qe,
+		queryExecutor:  qe,
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *vehicle) GetVehicles(filters map[string]string) ([]models.Vehicle, erro
 
 	res := make([]models.Vehicle, 0)
 	for _, row := range rows {
-		res = append(res , c.getVehicleRow(vehicleType, row))
+		res = append(res, c.getVehicleRow(vehicleType, row))
 	}
 
 	return res, nil

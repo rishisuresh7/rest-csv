@@ -18,13 +18,13 @@ type ACSFP interface {
 
 type acsfp struct {
 	acsfpBuilder builder.ACSFPBuilder
-	exec repository.QueryExecutor
+	exec         repository.QueryExecutor
 }
 
 func NewACSFP(b builder.ACSFPBuilder, e repository.QueryExecutor) ACSFP {
 	return &acsfp{
 		acsfpBuilder: b,
-		exec: e,
+		exec:         e,
 	}
 }
 
@@ -73,7 +73,7 @@ func (a *acsfp) GetItems(filters map[string]string) ([]models.ACSFP, error) {
 			DemandDetails:    row[9],
 			Remarks:          row[10],
 		}
-		res = append(res , item)
+		res = append(res, item)
 	}
 
 	return res, nil

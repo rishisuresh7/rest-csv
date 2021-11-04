@@ -52,7 +52,7 @@ func (d *demand) GetDemands(filters map[string]string) ([]models.Demand, error) 
 	res := make([]models.Demand, 0)
 	for _, row := range rows {
 		demand := models.Demand{
-			Item:              models.Item{
+			Item: models.Item{
 				Id:          stringToInteger(row[0]),
 				Sqn:         row[1],
 				VehicleType: row[2],

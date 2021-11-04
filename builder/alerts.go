@@ -35,7 +35,7 @@ func (a *alertBuilder) UpdateAlert(alert models.Notification) string {
 func (a *alertBuilder) ModifyAlert(alert models.Alert) string {
 	return fmt.Sprintf(`UPDATE alerts SET name = '%s', ba_number = '%s', alert_field = '%s', last_value = '%s',
 			next_value = '%s', remarks = '%s' WHERE id = %d`, alert.Name, alert.BaNo, alert.AlertField, alert.LastValue,
-			alert.NextValue, alert.Remarks, alert.Id)
+		alert.NextValue, alert.Remarks, alert.Id)
 }
 
 func (a *alertBuilder) GetAlerts() string {
@@ -43,39 +43,39 @@ func (a *alertBuilder) GetAlerts() string {
 }
 
 type fieldMap struct {
-	operator string
+	operator  string
 	fieldName string
-	filter string
+	filter    string
 }
 
 var alertMap = map[string]fieldMap{
 	"kilometers": {
-		operator: "<=",
+		operator:  "<=",
 		fieldName: "kilometers",
 	},
 	"efc": {
-		operator: "<=",
+		operator:  "<=",
 		fieldName: "efc",
 	},
 	"tm 1": {
-		operator: "=",
+		operator:  "=",
 		fieldName: "tm_1",
-		filter: "AND julianday(a.next_value) <= julianday('now')",
+		filter:    "AND julianday(a.next_value) <= julianday('now')",
 	},
 	"tm 2": {
-		operator: "=",
+		operator:  "=",
 		fieldName: "tm_2",
-		filter: "AND julianday(a.next_value) <= julianday('now')",
+		filter:    "AND julianday(a.next_value) <= julianday('now')",
 	},
 	"cms in": {
-		operator: "=",
+		operator:  "=",
 		fieldName: "cms_in",
-		filter: "AND julianday(a.next_value) <= julianday('now')",
+		filter:    "AND julianday(a.next_value) <= julianday('now')",
 	},
 	"cms out": {
-		operator: "=",
+		operator:  "=",
 		fieldName: "cms_out",
-		filter: "AND julianday(a.next_value) <= julianday('now')",
+		filter:    "AND julianday(a.next_value) <= julianday('now')",
 	},
 }
 

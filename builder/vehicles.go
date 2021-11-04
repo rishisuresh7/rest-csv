@@ -63,8 +63,8 @@ func (c *aVehicles) UpdateVehicles(items []models.Vehicle) string {
 				workshop_in = '%s', workshop_out = '%s', mr_1 = '%s', mr_2 = '%s', fd_firing = '%s'
 			WHERE id = %d;
 			`, item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.EngineHours, item.Efc, item.TM1,
-			item.TM2, item.CMSIn, item.CMSOut, item.SeriesInspection, item.Trg, item.Remarks, item.WorkshopIn,
-			item.WorkshopOut, item.MR1, item.MR2, item.FDFiring, item.Id)
+		item.TM2, item.CMSIn, item.CMSOut, item.SeriesInspection, item.Trg, item.Remarks, item.WorkshopIn,
+		item.WorkshopOut, item.MR1, item.MR2, item.FDFiring, item.Id)
 }
 
 func (c *aVehicles) DeleteVehicles(ids []int64) string {
@@ -116,7 +116,7 @@ func (c *bVehicles) UpdateVehicles(items []models.Vehicle) string {
 			cms_in = '%s', cms_out = '%s', remarks = '%s', workshop_in = '%s', workshop_out = '%s'
 			WHERE id = %d;
 			`, item.Sqn, item.VehicleType, item.BaNo, item.Type, item.Kilometers, item.CMSIn,
-			item.CMSOut, item.Remarks, item.WorkshopIn, item.WorkshopOut, item.Id)
+		item.CMSOut, item.Remarks, item.WorkshopIn, item.WorkshopOut, item.Id)
 }
 
 func (c *bVehicles) DeleteVehicles(ids []int64) string {
